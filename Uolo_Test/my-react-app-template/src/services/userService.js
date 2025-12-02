@@ -10,7 +10,7 @@ export const getUsers = async (page = 1, limit = 10) => {
       throw new Error("Failed to fetch users");
     }
 
-    return await res.json();
+    return await res.json(); 
   } catch (error) {
     console.error("getUsers error:", error);
     throw error;
