@@ -1,5 +1,4 @@
 import React from 'react'
-import "./UserCard.css";
 
 function UserCard({user, onDelete}) {
 
