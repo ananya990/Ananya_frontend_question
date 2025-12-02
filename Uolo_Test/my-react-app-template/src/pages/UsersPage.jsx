@@ -1,52 +1,54 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState, useCallback } from 'react';
 import UserList from "../components/UserList";
 import Pagination from "../components/Pagination";
-import {getUsers, deleteUserById} from "../services/userService";
+import { getUsers, deleteUserById } from "../services/userService";
 
 function UsersPage() {
     const [users, setUsers] = useState([]);
-    const [page, setpage] = useState(1);
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const limit = 5;
 
-    const loadUsers = async () => {
+    const loadUsers = useCallback(async () => {
         setLoading(true);
-        try{
+
+        try {
             const data = await getUsers(page, limit);
-            setUsers(data);
+            setUsers(data.users || data);  
             setError("");
-        }catch (err) {
+        } catch (err) {
             setError(err.message);
+        } finally {
+            setLoading(false); 
         }
-        setLoading(false);
-    };
+    }, [page, limit]);
 
     useEffect(() => {
         loadUsers();
-    }, [page]);
+    }, [loadUsers]);
 
     const deleteUser = async (id) => {
         try {
             await deleteUserById(id);
             setUsers((prev) => prev.filter((u) => u.id !== id));
         } catch {
-            alert ("Error deleting user");
+            alert("Error deleting user");
         }
     };
 
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-    <h1 className="text-2xl font-bold text-center mb-5">Users Listing</h1>
+    return (
+        <div className="max-w-2xl mx-auto p-6">
+            <h1 className="text-2xl font-bold text-center mb-5">Users Listing</h1>
 
-    {loading && <p className="text-center text-gray-500">Loading...</p>}
-    {error && <p className="text-center text-red-600">{error}</p>}
+            {loading && <p className="text-center text-gray-500">Loading...</p>}
+            {error && <p className="text-center text-red-600">{error}</p>}
 
-    <UserList users = {users} onDelete={deleteUser}/>
+            <UserList users={users} onDelete={deleteUser} />
 
-    <Pagination page={page} setPage={setPage}/>
-    </div>
-  )
+            <Pagination page={page} setPage={setPage} />
+        </div>
+    );
 }
 
-export default UsersPage
+export default UsersPage;
